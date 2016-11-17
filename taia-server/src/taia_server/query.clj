@@ -77,8 +77,8 @@
 (defn create-query [state]
   (-> state
   (assoc  :query (u/accumulate-map acc-query
-                                        {:main-entity :users
-                                         :q (select* users)
+                                        {
+                                         :q (select* ((keyword (:type state)) entities))
                                          } [] {:users (-> state :json :find)}))
   ))
 

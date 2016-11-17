@@ -8,7 +8,7 @@
             [taia-server.utils :as u]
             [clojure.walk :refer [keywordize-keys]]
             [korma.core :as k :refer [defentity get-rel exec as-sql select select* join* fields table has-many belongs-to with join]]
-            [com.rpl.specter]
+             [com.rpl.specter]
             ))
 
 (defn json-req [request]
