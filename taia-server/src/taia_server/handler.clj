@@ -4,10 +4,11 @@
             [compojure.handler :as handler]
             [ring.middleware.json :as json]
             [ring.util.response :refer [response]]
-            [taia-server.query :as q :refer [users items userstoitems userstousers markets]]
+            [taia-server.query :as q :refer [users items userstoitems userstousers markets map-to-expressions]]
             [taia-server.utils :as u]
             [clojure.walk :refer [keywordize-keys]]
-            [korma.core :as k :refer [defentity get-rel exec as-sql select select* join* fields table has-many belongs-to with join]]
+            [korma.core :as k :refer [defentity where where* get-rel exec as-sql select select* join* fields table has-many belongs-to with join]]
+            [korma.sql.fns :as kf]
              [com.rpl.specter]
             ))
 
@@ -19,6 +20,55 @@
 
 
 
+;; (def base (-> (select* users)
+;;               (fields :id :name)
+;;               ))
+;; (def wh {
+;;           :id ["=" 10]
+;;           :name "dan"
+;;           :or {
+;;                 :name ["=" "a"]
+;;                 :id 11
+;;                 :and {
+;;                          :name "b"
+;;                          :id "a"}
+;;                 }
+;;           }
+;;   )
+
+
+;; (def a (-> base
+;;            (where (map-to-expressions wh))
+;; ;;            (where (expression
+;; ;;                     "or"
+;; ;;                       (expression "=" :id 10)
+;; ;;                       (expression "=" :id 11)
+;; ;;                       (expression "=" :name "dan")
+;; ;;                       ))
+
+;;            (as-sql)
+;;                   ))
+
+;; /api/1/query/users
+;; {
+;; 	"find":[
+;; 		"id",
+;; 		"name",
+;; 		{"userstoitems":["item_id","market_id",{"items":["id","name","image"]}]},
+;; 		{"userstousers":["follower_id"]}
+;; 		],
+;; "where":{
+
+;;           "name":"dan",
+;;           "or":{
+;;                 "name": ["=", "a"],
+;;                 "id":11,
+;;                  "and": {
+;;                          "name":"b" ,
+;;                          "id":"a"}
+;;                 }
+;;           }
+;; }
 
 
 
@@ -31,9 +81,10 @@
             q/create-query
             q/execute-query
             q/transform-results
-            response
-            ;;             (#(response (select-keys [:data] %)))
-            ))
+;;             (assoc :test a)
+              response
+              ;;             (#(response (select-keys [:data] %)))
+              ))
   (POST "/echo"
         request
         (response (json-req request)))

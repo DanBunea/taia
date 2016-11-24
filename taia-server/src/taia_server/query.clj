@@ -3,8 +3,10 @@
   (:require
     [taia-server.database]
     [taia-server.utils :as u]
-    [korma.core :as k :refer [defentity select as-sql exec get-rel add-joins select* fields table has-many belongs-to with join]]
+    [korma.core :as k :refer [defentity where select as-sql exec get-rel add-joins select* fields table has-many belongs-to with join]]
     [korma.sql.fns :as sfns]
+    [korma.sql.engine :as ke]
+
     ))
 
 
@@ -47,6 +49,10 @@
    })
 
 
+
+
+
+
 (defn left-join [query entity related-entity]
   (join query :left related-entity
         (let [rel (get-rel entity related-entity)]
@@ -73,14 +79,48 @@
         )))
 
 
+;;WHERE - expressions
+
+(defn expression [agg & values]
+  (apply (resolve (get ke/predicates (symbol agg))) values))
+
+(defn expressions [wh]
+  (reduce
+    (fn [c [property value]]
+      (if (not (nil? (some #{:and :or} [property])))
+        (conj c (apply (partial expression (name property)) (expressions value)))
+
+        ;;else
+        (conj c (cond
+                  (and (coll? value) (= 2 (count value)))
+                  (expression (first value) property (last value))
+
+                  :else
+                  (expression "=" property value)
+                  ))))
+    []
+    wh))
+
+(defn map-to-expressions [value]
+  (apply (partial expression "and") (expressions value)))
+
+;;WHERE - expressions-end
+
+
+
+
 
 (defn create-query [state]
   (-> state
-  (assoc  :query (u/accumulate-map acc-query
-                                        {
-                                         :q (select* ((keyword (:type state)) entities))
-                                         } [] {:users (-> state :json :find)}))
-  ))
+      (assoc  :query (u/accumulate-map
+                       acc-query
+                       {
+                         :q (select* ((keyword (:type state)) entities))
+                         }
+                       []
+                       {:users (-> state :json :find)}))
+      (update-in [:query :q] #(where % (map-to-expressions (-> state :json :where))))
+      ))
 
 
 (defn execute-query [state]
