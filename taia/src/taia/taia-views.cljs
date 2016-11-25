@@ -1,6 +1,6 @@
 (ns taia.views
   (:require
-    [reagent.core :as reagent :refer [atom]]
+    [reagent.core :as r :refer [atom]]
     [taia.model :as m :refer [model]])
   )
 
@@ -141,19 +141,110 @@
       ])
 
 
+(defn get-camera []
+  (.getElementById js/document "camera"))
+
+(defn move-camera
+  ([x y]
+   (move-camera x y 1))
+  ([x y zoom]
+  (let [camera (get-camera)
+        style (.-style camera)
+        ]
+    (set! (.-transform style)(str "scale(" zoom ") translateX("  0  "px) translateY(" 0 "px) translateZ("  200 "px) rotateX(" x "deg) rotateY(" y "deg)"))
+    )))
+
 
 (defn application-component [state]
-  [:div#page.page.view
-   [:div#origin.origin.view
-    [:div#camera.camera.view
-     {:style {
-               :opacity 1
-               :transform "scale(1) translateX(0px) translateY(0px) translateZ(-200px) rotateX(0deg) rotateZ(0deg)"
-               :transition-duration "3s"
-               :transition-property "opacity -webkit-transform"
-               :transition-timing-function "ease-out"}}
-      [user-component state]
+  (r/create-class {
+                    :reagent-render (fn [state]
 
-     ]]
-   "screen"]
+                                      [:div#page.page.view
+                                       [:div#origin.origin.view
+                                        [:div#camera.camera.view
+                                         {:style {
+                                                   :opacity 1
+                                                   :transform "scale(1) translateX(0px) translateY(0px) translateZ(-200px) rotateX(0deg) rotateZ(0deg)"
+                                                   :transition-duration "3s"
+                                                   :transition-property "opacity -webkit-transform"
+                                                   :transition-timing-function "ease-out"}}
+                                         [user-component state]
+
+                                         ]]
+                                       "screen"]
+                                      )
+                    :component-did-mount (fn [this] )})
   )
+
+
+
+
+
+
+;; //CAMERA
+
+;; ///when the camera is dragged
+
+;; TaiaView.prototype.screenDrag = function (dx, dy) {
+
+
+
+;;     //iPad
+;;     this.model.camera.angleY = dx  / this.model.camera.pixelsPerDeg;
+;;     this.model.camera.angleX = -dy  /this.model.camera.pixelsPerDeg;
+
+;;     //iPhone
+
+;;     // this.model.camera.x = dx;
+
+;;     // this.model.camera.y = dy;
+
+;; 	this.moveCamera(this.model);
+
+;; }
+
+
+
+;; ///when zooming in
+
+;; TaiaView.prototype.screenZoom = function (dx, dy) {
+;;     this.model.camera.scale = dx;
+;;     this.moveCamera(controller.taiaModel);
+
+;; }
+
+
+
+;; ///move the camera
+
+;; TaiaView.prototype.moveCamera = function (model) {
+;;     this.jQcamera.css("opacity", "" + model.camera.opacity)
+;;     .css("-webkit-transform", "scale("+model.camera.scale+") translateX(" + model.camera.x + "px) translateY(" + model.camera.y + "px) translateZ(" + model.camera.z + "px) rotateX(" + model.camera.angleX + "deg) rotateY(" + model.camera.angleY + "deg)")
+;;     //.css("-webkit-transition-duration", "730ms");
+;;     .css("-webkit-transition-duration", "450ms");
+
+;; }
+
+
+
+;; TaiaView.prototype.animateCameraBack = function (){
+
+;;     var camera = document.getElementById("camera");
+;;     camera.style.webkitTransitionProperty = "opacity,-webkit-transform";
+;;     camera.style.webkitTransitionDuration = "3s";
+;;     this.jQcamera.css("opacity", "1")
+;; 	.css("-webkit-transform", "scale(1) translateX(0px) translateY(0px) translateZ(-200px) rotateX(0deg) rotateZ(0deg)")
+;;     .css("-webkit-transition-timing-function", "ease-out");
+
+
+;;     this.model.camera.reset();
+
+;; }
+
+
+
+;; TaiaView.prototype.stopCameraAnimations = function (){
+;;     var camera = document.getElementById("camera");
+;;     camera.style.webkitTransitionProperty = "none";
+;;     camera.style.webkitTransitionDuration = "0s";
+;; }
