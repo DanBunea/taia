@@ -5,6 +5,50 @@
   )
 
 
+(defn app-component [app-name state]
+  [:div.tapSmall.iPadApps
+   {
+     :id app-name
+     :data (str app-name ",iPadApps")}
+
+   [:div
+    {:style {
+              :border-radius "20px"
+              :box-shadow "0px 4px 8px black"
+              :position "absolute"
+              :left "0px"
+              :top "0px"
+              :width "100px"
+              :height "100px"
+              :background-image "url(http://taiaserver.taia76.com/downloads/min/iPad306550020.png)"
+              :background-position  "center center"
+              :background-size "cover"}}]
+   [:img#lnkDeleteAlina.deleteButton
+    {:data "Alina,followingForiPadApps"
+     :src "images/icon_delete.png"
+     :style {:display "none"}}]
+
+   [:div
+    {:style {
+
+              :position "absolute"
+              :left "0px"
+              :top "0px"
+              :width "100%"
+              :height "16px"
+              :overflow "hidden"
+              :padding "5px"
+              :font-size "14px"
+              :font-weight "bold"
+              :color "rgba(102,102,102,1)"
+              :text-align "center"
+              :vertical-align "bottom"}}]
+
+   ]
+
+  )
+
+
 (defn follower-component [user-name state]
   [:div.tapSmall.followingForiPadApps
    {
@@ -18,7 +62,7 @@
 
    [:img#lnkDeleteAlina.deleteButton
     {:data "Alina,followingForiPadApps"
-     :src="images/icon_delete.png"
+     :src "images/icon_delete.png"
      :style {:display "none"}}]
    [:div.bottom ]
    [:div.bottomText "Alina Bunea"]
@@ -27,22 +71,26 @@
    ]
   )
 
-(defn followers-page-component [state]
+(defn page-component [params state]
   [:div#relListfollowingForiPadApps1.relationPage
-   [follower-component "Alina" state]
-   [follower-component "Anca" state]
+   [(:component params) "Alina" state]
+   [(:component params) "Anca" state]
    ])
 
 
-(defn followers-component [state]
+
+
+(defn relation-component [params state]
       [:div#followingForiPadApps1.relation.Related.fadeout.followingForiPadApps
        {
         :data "followingForiPadApps"
-        :style {:width "360px" :height "460px" :transform "translate3d(-85px, -80px, -400px)" :opacity 0.1875
+        :style {:width "360px" :height "460px"
+                :transform (:transform params)
+                :opacity 0.1875
                 :transition-duration "800ms"}}
        [:div#relationTitlefollowingForiPadApps1.relationTitle
         {:data "followingForiPadApps"}
-        "Friends"]
+        (:title params)]
        [:div#relationTitle.help
         {
           :style {
@@ -51,10 +99,10 @@
                    :top "-40px"
                    }}
         "Tap title to edit"]
-       [followers-page-component state]
+       [page-component {:component (:component params)}  state]
        ]
-
   )
+
 
 (defn user-component [state]
      [:div#view.view
@@ -77,21 +125,19 @@
 
        ]
 
-      [:div#iPadApps2.relation.Related.fadeout.iPadApps
+
+      [relation-component
        {
-        :data "iPadApps"
-        :style {:width "360px" :height "460px" :transform "translate3d(900px, -80px, -500px)" :opacity 0.1875
-                :transition-duration "800ms"}}
-       [:div#relationTitleiPadApps1.relationTitle
-        {:data "iPadApps"}
-        "Favourite apps"]
-       ]
-
-      [followers-component state]
-
-
-;; <div class="relation Related fadeout followingForiPadApps" id="followingForiPadApps1" data="followingForiPadApps" style="width: 360px; height: 460px; transform: translate3d(-85px, -80px, -400px); opacity: 1; transition-duration: 500ms;">   <div id="relationTitlefollowingForiPadApps1" data="followingForiPadApps" class="relationTitle" onclick="controller.edit('followingForiPadApps');return false;">    Friends   </div>
-
+         :transform "translate3d(900px, -80px, -500px)"
+         :title "Favourite apps"
+         :component app-component}
+       state]
+      [relation-component
+       {
+         :transform "translate3d(-85px, -80px, -400px)"
+         :title "Friends2"
+         :component follower-component}
+       state]
       ])
 
 
@@ -106,8 +152,6 @@
                :transition-duration "3s"
                :transition-property "opacity -webkit-transform"
                :transition-timing-function "ease-out"}}
-
-
       [user-component state]
 
      ]]
