@@ -82,8 +82,8 @@
             q/execute-query
             q/transform-results
 ;;             (assoc :test a)
-              response
-              ;;             (#(response (select-keys [:data] %)))
+;;               response
+                          (#(response (select-keys % [:data] )))
               ))
   (POST "/echo"
         request

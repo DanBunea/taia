@@ -1,5 +1,9 @@
 (ns taia.core
-  (:require [reagent.core :as reagent :refer [atom]]))
+  (:require
+    [reagent.core :as reagent :refer [atom]]
+    [taia.model :as m :refer [model]]
+    [taia.views :as views]
+    ))
 
 (enable-console-print!)
 
@@ -9,10 +13,10 @@
 
 (defonce app-state (atom {:text "Hello world!"}))
 
-(defn hello-world []
-  [:h1 (:text @app-state)])
+(defn application []
+  [views/application-component @model])
 
-(reagent/render-component [hello-world]
+(reagent/render-component [application]
                           (. js/document (getElementById "app")))
 
 (defn on-js-reload []
