@@ -17,7 +17,7 @@
       :market {
                 :id 1
                 :name "apps"
-                :relations {:followers {}
+                :relations {:following {}
                             :recommendations {}}}
       :user {
               :id 1
@@ -26,7 +26,7 @@
       :current-item
       {
         :id 1
-        :followers
+        :following
         {
           :11 {:id 11
                :name "Alina"}
@@ -70,10 +70,8 @@
   (-> state
       :data
       id
-      (select-keys  [:_id :name :iPadApps :followingForiPadApps])
-      (move :iPadApps :recommendations)
-      (move :followingForiPadApps :followers)
-      (replace-id-with-item state :followers)
+      (select-keys  [:_id :name :recommendations :following])
+      (replace-id-with-item state :following)
       (replace-id-with-item state :recommendations)
       (move :_id :id)
       )

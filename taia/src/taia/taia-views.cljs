@@ -38,7 +38,7 @@
               :background-position  "center center"
               :background-size "cover"}}]
    [:img#lnkDeleteAlina.deleteButton
-    {:data "Alina,followingForiPadApps"
+    {:data "Alina,following"
      :src "images/icon_delete.png"
      :style {:display "none"}}]
 
@@ -66,10 +66,10 @@
 
 
 (defn follower-component [user-name state]
-  [:div.tapSmall.followingForiPadApps
+  [:div.tapSmall.following
    {
      :id user-name
-     :data (str user-name ",followingForiPadApps")
+     :data (str user-name ",following")
      :style {
               :background-image "url('/images/Alina.jpg')"
               :background-position "center center" :background-size "cover"
@@ -77,7 +77,7 @@
               }}
 
    [:img#lnkDeleteAlina.deleteButton
-    {:data "Alina,followingForiPadApps"
+    {:data "Alina,following"
      :src "images/icon_delete.png"
      :style {:display "none"}}]
    [:div.bottom ]
@@ -89,7 +89,7 @@
 
 (defn page-component [params index page state]
   [:div.relationPage
-   {:id (str "relListfollowingForiPadApps" index)
+   {:id (str "relListfollowing" index)
     }
    (for [related-item page]
      ^{:key (str (:id related-item) "_" (:type related-item) "_" (:name related-item))}
@@ -100,9 +100,9 @@
 
 
 (defn relation-page-component [params page state]
-  [:div#followingForiPadApps1.relation.Related.fadeout.followingForiPadApps
+  [:div#following1.relation.Related.fadeout.following
    {
-     :data "followingForiPadApps"
+     :data "following"
      :style {:width "360px" :height "460px"
              :transform (str
                           "translate3d(" (:transform-x params) "px,"
@@ -114,8 +114,8 @@
 
 
 
-   [:div#relationTitlefollowingForiPadApps1.relationTitle
-    {:data "followingForiPadApps"}
+   [:div#relationTitlefollowing1.relationTitle
+    {:data "following"}
     (:title params)]
    [:div#relationTitle.help
     {
@@ -126,7 +126,7 @@
                }}
     "Tap title to edit"]
    [:div.relationPage
-    {:id (str "relListfollowingForiPadApps" (:index params))
+    {:id (str "relListfollowing" (:index params))
      }
     (for [related-item page]
       ^{:key (str (:id related-item) "_" (:type related-item) "_" (:name related-item))}
@@ -167,7 +167,7 @@
                        :transform-y -80
                        :transform-z -400}
                       (condp = relation-name
-                        :followers  {
+                        :following  {
                                       :component follower-component}
 
                         :recommendations  {
