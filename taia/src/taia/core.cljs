@@ -3,6 +3,7 @@
     [reagent.core :as reagent :refer [atom]]
     [taia.model :as m :refer [model]]
     [taia.views :as views]
+    [taia.controller :as controller]
     ))
 
 (enable-console-print!)
@@ -24,3 +25,7 @@
   ;; your application
   ;; (swap! app-state update-in [:__figwheel_counter] inc)
 )
+
+
+(defn ^:extern init []
+  (controller/init ))
