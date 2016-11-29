@@ -1,7 +1,8 @@
 (ns taia.views
   (:require
     [reagent.core :as r :refer [atom]]
-    [taia.model :as m :refer [model]])
+    [taia.model :as m :refer [model]]
+    [cljsjs.hammer])
   )
 
 ;;fns
@@ -15,7 +16,7 @@
   (let [camera (get-camera)
         style (.-style camera)
         ]
-    (set! (.-transform style)(str "scale(" zoom ") translateX("  0  "px) translateY(" 0 "px) translateZ("  200 "px) rotateX(" x "deg) rotateY(" y "deg)"))
+    (set! (.-transform style)(str "scale(" zoom ") translateX("  0  "px) translateY(" 0 "px) translateZ("  200 "px) rotateX(" y "deg) rotateY(" x "deg)"))
     )))
 
 ;;components
@@ -195,25 +196,62 @@
 
 
 (defn application-component [state]
-  (r/create-class {
-                    :reagent-render (fn [state]
+  (let [!hammer-manager (atom nil)
+        !zoom           (atom {:x 0 :y 0 :scale 1})
+        !start-zoom     (atom {:x 0 :y 0 :scale 1})]
+    (r/create-class {
+                      :reagent-render
+                      (fn [state]
 
-                                      [:div#page.page.view
-                                       [:div#origin.origin.view
-                                        [:div#camera.camera.view
-                                         {:style {
-                                                   :opacity 1
-                                                   :transform "scale(1) translateX(0px) translateY(0px) translateZ(-200px) rotateX(0deg) rotateZ(0deg)"
-                                                   :transition-duration "3s"
-                                                   :transition-property "opacity -webkit-transform"
-                                                   :transition-timing-function "ease-out"}}
-                                         [user-component state]
+                        [:div#page.page.view
+                         [:div#origin.origin.view
+                          [:div#camera.camera.view
+                           {:style {
+                                     :opacity 1
+                                     :transform "scale(1) translateX(0px) translateY(0px) translateZ(-200px) rotateX(0deg) rotateZ(0deg)"
+                                     :transition-duration "3s"
+                                     :transition-property "opacity -webkit-transform"
+                                     :transition-timing-function "ease-out"}}
+                           [user-component state]
 
-                                         ]]
-                                       "screen"]
-                                      )
-                    :component-did-mount (fn [this] )})
-  )
+                           ]]
+                         ]
+                        )
+
+
+;;     var target = findTouchedElement(event.target);
+
+;;     var leftDelta = event.touches[0].pageX - touch.startX;
+;;     var topDelta = event.touches[0].pageY - touch.startY;
+
+
+                      :component-did-mount
+                      (fn [this]
+                        (let [mc (new js/Hammer.Manager (r/dom-node this))]
+                          ;; Pan
+                          (js-invoke mc "add" (new js/Hammer.Pan #js{"direction" js/Hammer.DIRECTION_ALL
+                                                                     "threshold" 0}))
+                          (js-invoke mc "on" "panstart" #(reset! !start-zoom @!zoom))
+                          (js-invoke mc "on" "panend" #(do
+                                                         (move-camera 0 0 1)
+                                                      (reset! !zoom {:x 0 :y 0 :scale 1})
+;;                                                          (reset! !start-zoom @!zoom)
+                                                         ))
+                          (js-invoke mc "on" "pan" #(let [{:keys [x y]} @!start-zoom]
+
+                                                      (print 4 (+ x (.-deltaX %)) (+ y (.-deltaY %)) 1)
+                                                      (move-camera (+ x (.-deltaX %)) (+ y (.-deltaY %)) 1)
+                                                      (swap! !zoom assoc :x (+ x (.-deltaX %))
+                                                             :y (+ y (.-deltaY %)))))
+                          ))
+
+                      :component-will-unmount
+                      (fn [_]
+                        (when-let [mc @!hammer-manager]
+                          (js-invoke mc "destroy")))
+                      })
+
+    ))
 
 
 
